@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nvidia-driver-installer
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: nvidia-driver-installer
+  template:
+    metadata:
+      labels:
+        app: nvidia-driver-installer
+    spec:
+      nodeSelector: {{ toYaml .Values.nvidia.nodeSelector | nindent 8 }}
+      containers:
+      - name: installer
+        image: {{ .Values.nvidia.image }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: host-root
+          mountPath: /host
+        env:
+        - name: SLESREGCODE
+          valueFrom:
+            secretKeyRef:
+              name: sles-regcode
+              key: regcode
+        - name: SLESREGEMAIL
+          valueFrom:
+            secretKeyRef:
+              name: sles-regcode
+              key: regemail
+        - name: SLEMREGCODE
+          valueFrom:
+            secretKeyRef:
+              name: slem-regcode
+              key: regcode
+        - name: SLEMREGEMAIL
+          valueFrom:
+            secretKeyRef:
+              name: slem-regcode
+              key: regemail
+        - name: SLES_DRIVER_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: nvidia-driver-installer-config
+              key: SLES_DRIVER_VERSION
+        - name: SLEM_DRIVER_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: nvidia-driver-installer-config
+              key: SLEM_DRIVER_VERSION
+      volumes:
+      - name: host-root
+        hostPath:
+          path: /

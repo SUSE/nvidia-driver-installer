@@ -1,0 +1,21 @@
+namespace: kube-system
+
+nvidia:
+  image: ghcr.io/suse/chart/nvidia-driver-installer:0.1.0
+  nodeSelector:
+    node-role.kubernetes.io/ai-worker: "true"
+
+os:
+  sles:
+    regcode: ""
+    regemail: ""
+    driverVersion: "570.144"
+  slem:
+    regcode: ""
+    regemail: ""
+    driverVersion: "550.54.14"
+
+kured:
+  image: ghcr.io/kubereboot/kured:1.17.1
+  updatePeriod: "1m"
+  rebootSentinel: "/sentinel/reboot-needed"
