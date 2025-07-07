@@ -1,0 +1,6 @@
+apiVersion: v2
+name: nvidia-driver-installer
+description: A Helm chart for Nvidia drivers installation on SUSE OS
+type: application
+version: 0.1.0
+appVersion: "1.16.0"

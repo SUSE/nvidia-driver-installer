@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kured
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      name: kured
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: kured
+    spec:
+      serviceAccountName: kured
+      hostPID: true
+      tolerations:
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/master
+          effect: NoSchedule
+      volumes:
+        - name: sentinel
+          hostPath:
+            path: /var/run
+            type: Directory
+      containers:
+        - name: kured
+          image: {{ .Values.kured.image }}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+            readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 8080
+              name: metrics
+          env:
+            - name: KURED_NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /sentinel
+              name: sentinel
+              readOnly: true
+          command:
+            - /usr/bin/kured
+            - --reboot-sentinel=/sentinel/reboot-needed
+            - --period={{ .Values.kured.updatePeriod }}
