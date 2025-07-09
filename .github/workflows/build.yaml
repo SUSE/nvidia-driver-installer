@@ -45,10 +45,6 @@ jobs:
           linux/arm64
         push: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
         tags: ${{ env.IMAGE_TAG }}
-    - name: Install Helm
-      uses: azure/setup-helm@v4
-      with:
-        version: 3.8.0
     - name: Build Helm chart and publish to GitHub Packages
       if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
       run: |
