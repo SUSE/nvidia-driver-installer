@@ -1,7 +1,7 @@
 namespace: kube-system
 
 nvidia:
-  image: ghcr.io/suse/chart/nvidia-driver-installer:0.1.0
+  image: ghcr.io/suse/nvidia-driver-installer:0.1.0
   nodeSelector:
     node-role.kubernetes.io/ai-worker: "true"
 
