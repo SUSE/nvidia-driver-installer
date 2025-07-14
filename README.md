@@ -33,6 +33,8 @@ kubectl get nodes -l node-role.kubernetes.io/worker=true -o json \
 
 > **Note:** Adjust the label logic if your cluster has different roles or labeling conventions.
 
+> **Note:** The changes applied by the daemonset to the host are not reversible when you remove the label. You need to manually perform the cleanup if required. 
+
 ---
 
 #### 2. Configure `values.yaml`
