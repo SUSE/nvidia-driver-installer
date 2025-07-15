@@ -17,7 +17,9 @@ spec:
       - name: installer
         image: {{ .Values.nvidia.image }}
         securityContext:
-          privileged: true
+          capabilities:
+            add:
+              - SYS_ADMIN
         volumeMounts:
         - name: host-root
           mountPath: /host
