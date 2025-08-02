@@ -4,19 +4,21 @@ set -euo pipefail
 source /host/etc/os-release
 echo "Detected OS: $NAME ($PRETTY_NAME)"
 
-INSTALLED_VERSION=$(chroot /host rpm -q nvidia-open-driver-G06-signed-kmp-default | sed -n 's/.*-\([0-9]\+\(\.[0-9]\+\)*\)_.*$/\1/p' || echo "")
-
 if [[ "$ID" == "sles" ]]; then
-    TARGET_VERSION="${SLES_DRIVER_VERSION:-570.144}"
+    TARGET_VERSION="${SLES_DRIVER_VERSION:-575.57.08}"
     REGCODE="${SLESREGCODE:-no-reg-code}"
     REGEMAIL="${SLESREGEMAIL:-no-reg-email@example.com}"
+    PACKAGE_NAME="nv-prefer-signed-open-driver"
 elif [[ "$ID" == "sl-micro" ]]; then
     TARGET_VERSION="${SLEM_DRIVER_VERSION:-570.133.20}"
     REGCODE="${SLEMREGCODE:-no-reg-code}"
     REGEMAIL="${SLEMREGEMAIL:-no-reg-email@example.com}"
+    PACKAGE_NAME="nvidia-open-driver-G06-signed-cuda-kmp-default"
 else
     echo "Unsupported OS type: $ID"; exit 1;
 fi
+
+INSTALLED_VERSION=$(chroot /host rpm -qa --queryformat '%{VERSION}\n' $PACKAGE_NAME | cut -d "_" -f1 | sort -u | tail -n 1)
 
 echo "INSTALLED_VERSION: $INSTALLED_VERSION"
 echo "TARGET_VERSION: $TARGET_VERSION"
@@ -39,16 +41,16 @@ else
         # driver_version=\$(zypper se -s nvidia-open-driver | grep nvidia-open-driver- | sed 's/.* package \+| //g' | sed 's/\\s.*//g' | sort -rV | grep -v '^$' | head -n 1 | sed 's/[-_].*//g')
         driver_version=\"${SLES_DRIVER_VERSION}\"
         
-        if ! zypper lr | grep -q 'nvidia-sle15sp6-main'; then
-            zypper --non-interactive addrepo 'https://download.nvidia.com/suse/sle15sp6/' 'nvidia-sle15sp6-main'
+        if ! zypper lr | grep -q 'cuda-sle15'; then
+            zypper --non-interactive addrepo 'https://developer.download.nvidia.com/compute/cuda/repos/sles15/x86_64/' 'cuda-sle15'
         fi
         if ! zypper lr | grep -q 'nvidia-container-toolkit'; then
             zypper --non-interactive addrepo 'https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo'
         fi
         zypper --non-interactive --gpg-auto-import-keys refresh
-        zypper remove -y --clean-deps nvidia-open-driver-G06-signed-kmp nvidia-compute-utils-G06 nvidia-container-toolkit || true
+        zypper remove -y --clean-deps nv-prefer-signed-open-driver nvidia-compute-utils-G06 nvidia-container-toolkit || true
         zypper --non-interactive install -y --auto-agree-with-licenses \
-            nvidia-open-driver-G06-signed-kmp=\"\$driver_version\" \
+            nv-prefer-signed-open-driver=\"\$driver_version\" \
             nvidia-compute-utils-G06=\"\$driver_version\" \
             nvidia-container-toolkit
         touch /var/run/reboot-needed
@@ -64,17 +66,17 @@ else
         #!/bin/bash
         set -euo pipefail
 
-        if ! zypper lr | grep -q 'nvidia-sle15sp6-main'; then
-            zypper --non-interactive addrepo 'https://download.nvidia.com/suse/sle15sp6/' 'nvidia-sle15sp6-main'
+        if ! zypper lr | grep -q 'cuda-sle15'; then
+            zypper --non-interactive addrepo 'https://developer.download.nvidia.com/compute/cuda/repos/sles15/x86_64/' 'cuda-sle15'
         fi
         if ! zypper lr | grep -q 'nvidia-container-toolkit'; then
             zypper --non-interactive addrepo 'https://nvidia.github.io/libnvidia-container/stable/rpm/nvidia-container-toolkit.repo'
         fi
 
         zypper --non-interactive --gpg-auto-import-keys refresh
-        zypper remove -y --clean-deps nvidia-open-driver-G06-signed-kmp nvidia-compute-utils-G06 nvidia-container-toolkit || true
+        zypper remove -y --clean-deps nvidia-open-driver-G06-signed-cuda-kmp-default nvidia-compute-utils-G06 nvidia-container-toolkit || true
         zypper --non-interactive install --no-recommends -y --auto-agree-with-licenses \\
-            nvidia-open-driver-G06-signed-kmp=\$driver_version \\
+            nvidia-open-driver-G06-signed-cuda-kmp-default=\$driver_version \\
             nvidia-compute-utils-G06=\$driver_version \\
             nvidia-container-toolkit
 
