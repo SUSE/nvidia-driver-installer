@@ -9,11 +9,11 @@ os:
   sles:
     regcode: ""
     regemail: ""
-    driverVersion: "570.144"
+    driverVersion: "575.57.08"
   slem:
     regcode: ""
     regemail: ""
-    driverVersion: "550.54.14"
+    driverVersion: "570.133.20"
 
 kured:
   image: ghcr.io/kubereboot/kured:1.17.1
