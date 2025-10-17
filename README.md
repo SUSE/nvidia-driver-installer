@@ -45,7 +45,7 @@ Create or update a `values.yaml` file with your desired configuration. You can d
 namespace: kube-system
 
 nvidia:
-  image: ghcr.io/suse/nvidia-driver-installer:0.1.0
+  image: ghcr.io/suse/nvidia-driver-installer:0.1.2
   nodeSelector:
     node-role.kubernetes.io/ai-worker: "true"
 
@@ -73,7 +73,7 @@ Deploy the chart using the Helm CLI. If your current Kubernetes context is set a
 
 ```sh
 helm install nvidia-driver-installer oci://ghcr.io/suse/chart/nvidia-driver-installer \
-  --version 0.1.0 \
+  --version 0.1.2 \
   -f values.yaml \
   --kubeconfig /path/to/your/kubeconfig
 ```
